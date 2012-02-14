@@ -16,7 +16,7 @@
   <tr>
     <td><%= violence.location_id %></td>
     <td><%= violence.actor_id %></td>
-    <td><%= violence.type %></td>
+    <td><%= violence.violence_type_id %></td>
     <td><%= violence.year_of %></td>
     <td><%= violence.death_count %></td>
     <td><%= link_to 'Show', violence %></td>
@@ -26,6 +26,7 @@
 <% end %>
 </table>
 
+<%= paginate @violences %>
 <br />
 
 <%= link_to 'New Violence', new_violence_path %>

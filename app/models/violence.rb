@@ -10,12 +10,12 @@ class Violence < ActiveRecord::Base
       actor = Actor.where(:name=>row[3].to_s.strip).first
       type = ViolenceType.where(:name=>row[4].to_s.strip).first
       v = Violence.new
-      v.location = location
-      v.actor = actor
-      v.violence_type = type
+      v.location_id = location.id
+      v.actor_id = actor.id
+      v.violence_type_id = type.id
       v.year_of = row[5]
       v.death_count = row[6]
-      puts v
+      v.save
     end
   end
 end

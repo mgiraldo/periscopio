@@ -2,7 +2,9 @@ class ViolencesController < ApplicationController
   # GET /violences
   # GET /violences.json
   def index
-    @violences = Violence.all
+    per = 50
+    page = params[:page] == nil ? 1 : params[:page]
+    @violences = Violence.page(page).per(per)
 
     respond_to do |format|
       format.html # index.html.erb
