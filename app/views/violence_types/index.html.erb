@@ -1,0 +1,23 @@
+<h1>Listing violence_types</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @violence_types.each do |violence_type| %>
+  <tr>
+    <td><%= violence_type.name %></td>
+    <td><%= link_to 'Show', violence_type %></td>
+    <td><%= link_to 'Edit', edit_violence_type_path(violence_type) %></td>
+    <td><%= link_to 'Destroy', violence_type, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Violence type', new_violence_type_path %>
