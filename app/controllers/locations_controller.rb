@@ -2,7 +2,9 @@ class LocationsController < ApplicationController
   # GET /locations
   # GET /locations.json
   def index
-    @locations = Location.all
+    per = 50
+    page = params[:page] == nil ? 1 : params[:page]
+    @locations = Location.page(page).per(per)
 
     respond_to do |format|
       format.html # index.html.erb
