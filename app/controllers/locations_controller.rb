@@ -2,7 +2,7 @@ class LocationsController < ApplicationController
   # GET /locations
   # GET /locations.json
   def index
-    per = 50
+    per = 100
     page = params[:page] == nil ? 1 : params[:page]
     @locations = Location.page(page).per(per)
 
