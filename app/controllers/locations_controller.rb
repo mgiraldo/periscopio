@@ -1,4 +1,51 @@
 class LocationsController < ApplicationController
+  
+  def api
+    sql = "SELECT
+            l.department, l.city, l.lat, l.lon, v.year_of, 
+            SUM(IF(actor_id = 1, death_count,0)) AS total_1,
+            SUM(IF(actor_id = 2, death_count,0)) AS total_2,
+            SUM(IF(actor_id = 3, death_count,0)) AS total_3,
+            SUM(IF(actor_id = 4, death_count,0)) AS total_4,
+            SUM(death_count) as total
+            FROM
+            violences v, locations l
+            WHERE v.location_id = l.id
+            GROUP BY
+            location_id, year_of
+            ORDER BY
+            location_id, year_of;"
+    q = Location.find_by_sql(sql)
+    g = []
+    #  require 'csv'
+    #  CSV.open('dump.csv', 'wb') do |ccc|
+    #  ccc << ["lat", "lon", "year", "total", "total_1", "total_2", "total_3", "total_4", "city", "department"]
+    q.each do |l|
+      t = {
+        :type => "Feature",
+        :geometry => {:type => "Point", :coordinates => [l.lon.to_f, l.lat.to_f]},
+        :properties => {
+          :year_of => l.year_of.to_i, 
+          :total => l.total.to_i, 
+          :total_1 => l.total_1.to_i, 
+          :total_2 => l.total_2.to_i, 
+          :total_3 => l.total_3.to_i, 
+          :total_4 => l.total_4.to_i, 
+          :city => l.city, 
+          :department => l.department
+        }
+      }
+      g.push(t)
+      #  ccc << [l.lat.to_f, l.lon.to_f, l.year_of, l.total, l.total_1, l.total_2, l.total_3, l.total_4, l.city, l.department]
+    end
+    # end
+    r = {:type => "FeatureCollection", :features => g}
+
+    respond_to do |format|
+      format.json { render :json => r.as_json }
+    end
+  end
+  
   # GET /locations
   # GET /locations.json
   def index

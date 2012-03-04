@@ -1,4 +1,8 @@
 Periscopio::Application.routes.draw do
+  get "visualizer/html"
+
+  get "visualizer/p5"
+
   resources :violence_types
 
   resources :actors
@@ -7,6 +11,12 @@ Periscopio::Application.routes.draw do
 
   resources :violences
 
+  match 'api', :to => 'locations#api'
+  
+  match 'viz/html', :to => 'visualizer#html'
+  
+  match 'viz/p5', :to => 'visualizer#p5'
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
