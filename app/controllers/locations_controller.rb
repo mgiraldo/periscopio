@@ -14,7 +14,8 @@ class LocationsController < ApplicationController
             GROUP BY
             location_id, year_of
             ORDER BY
-            location_id, year_of;"
+            location_id, year_of
+            LIMIT 10;"
     q = Location.find_by_sql(sql)
     g = []
     #  require 'csv'

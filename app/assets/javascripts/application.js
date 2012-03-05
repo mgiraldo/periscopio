@@ -6,4 +6,7 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require_tree .
+//= require modestmaps.min
+//= require wax.mm.min
+//= require leaflet.0.3
+//= require wax.leaf.min

@@ -1,3 +1,10 @@
+<% content_for :dynamic_headers do %>
+<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.css" />
+<!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.ie.css" />
+<![endif]-->
+<% end %>
+
 <h1>Visualizer</h1>
 <div id="mb-map"></div>
 <script type="text/javascript">
@@ -8,9 +15,12 @@
 	};
 
 	var url = 'http://a.tiles.mapbox.com/v3/mga.periscopio.jsonp';
+	var dataurl = '/api.json';
+	var jsonData = {};
 	// Alias com.modestmaps to mm. This isn't necessary -
 	// just nice for shorter code.
 	var mm = com.modestmaps;
+	/*
 	wax.tilejson(url, function(tilejson) {
 		// Set up a map in a div with the id 'mb-map'
 		var m = new mm.Map('mb-map',
@@ -24,5 +34,36 @@
 		wax.mm.zoomer(m).appendTo(m.parent);
 		wax.mm.interaction(m,tilejson);
 	});
-
+	*/
+	function createMap () {
+		wax.tilejson(url,
+		    function(tilejson) {
+		        var map = new L.Map('mb-map', {minZoom: 4, maxZoom: 10,})
+		          .addLayer(new wax.leaf.connector(tilejson))
+		          .setView(new L.LatLng(tilejson.center[1], tilejson.center[0]), tilejson.center[2]);
+				//var geojsonLayer = new L.GeoJSON();
+				//map.addLayer(geojsonLayer);
+				//geojsonLayer.addGeoJSON(jsonData);
+				var cb = {
+					over: function() {
+						
+					},
+					out: function() {
+						
+					},
+					click: function() {
+						
+					}
+				};
+				var ch = function (url) {
+					console.log('click');
+				};
+				wax.leaf.interaction(map, tilejson);
+		});
+		//var layer = new wax.leaf.connector(tilejson); // Returns a new L.TileLayer object.
+	}
+	$.getJSON(dataurl, function(data) {
+		jsonData = data;
+		createMap();
+	});
 </script>
