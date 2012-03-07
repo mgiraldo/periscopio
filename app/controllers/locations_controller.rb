@@ -2,7 +2,7 @@ class LocationsController < ApplicationController
   
   def api
     sql = "SELECT
-            l.department, l.city, l.lat, l.lon, v.year_of, 
+            l.*, v.year_of, 
             SUM(CASE actor_id WHEN 1 THEN death_count END) AS total_1,
             SUM(CASE actor_id WHEN 2 THEN death_count END) AS total_2,
             SUM(CASE actor_id WHEN 3 THEN death_count END) AS total_3,
@@ -12,7 +12,7 @@ class LocationsController < ApplicationController
             violences v, locations l
             WHERE v.location_id = l.id
             GROUP BY
-            location_id, year_of
+            v.location_id, v.year_of
             ORDER BY
             location_id, year_of;"
     q = Location.find_by_sql(sql)
