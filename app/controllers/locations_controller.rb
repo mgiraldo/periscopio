@@ -3,10 +3,10 @@ class LocationsController < ApplicationController
   def api
     sql = "SELECT
             l.department, l.city, l.lat, l.lon, v.year_of, 
-            SUM(IF(actor_id = 1, death_count,0)) AS total_1,
-            SUM(IF(actor_id = 2, death_count,0)) AS total_2,
-            SUM(IF(actor_id = 3, death_count,0)) AS total_3,
-            SUM(IF(actor_id = 4, death_count,0)) AS total_4,
+            SUM(CASE actor_id WHEN 1 THEN death_count END) AS total_1,
+            SUM(CASE actor_id WHEN 2 THEN death_count END) AS total_2,
+            SUM(CASE actor_id WHEN 3 THEN death_count END) AS total_3,
+            SUM(CASE actor_id WHEN 4 THEN death_count END) AS total_4,
             SUM(death_count) as total
             FROM
             violences v, locations l
