@@ -12,7 +12,7 @@ class LocationsController < ApplicationController
             violences v, locations l
             WHERE v.location_id = l.id
             GROUP BY
-            v.location_id, v.year_of
+            v.location_id, v.year_of, l.city, l.department, l.lat, l.lon
             ORDER BY
             location_id, year_of;"
     q = Location.find_by_sql(sql)
