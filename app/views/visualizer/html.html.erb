@@ -6,17 +6,22 @@
 <% end %>
 
 <h1>Visualizer</h1>
+Año: <select id="year-select">
+<% (1988..2005).each do |y| %>
+	<option value="<%= y %>"><%= y %></option>
+<% end %>
+</select>
 <div id="mb-map"></div>
 <script type="text/javascript">
+	var actors = ["","DEL","ELN","FARC","AUC"];
 	var tilejson = {
 		tilejson : '1.0.0',
 		scheme : 'xyz',
-		tiles : ['http://a.tiles.mapbox.com/v3/mga.periscopio/{z}/{x}/{y}.png']
+		tiles : ['http://a.tiles.mapbox.com/v3/mga.periscopio-base/{z}/{x}/{y}.png']
 	};
-
-	var url = 'http://a.tiles.mapbox.com/v3/mga.periscopio.jsonp';
-	var dataurl = '/api.json';
-	var jsonData = {};
+	var map;
+	var dataLayer;
+	var url = 'http://a.tiles.mapbox.com/v3/mga.periscopio-base.jsonp';
 	// Alias com.modestmaps to mm. This isn't necessary -
 	// just nice for shorter code.
 	var mm = com.modestmaps;
@@ -38,32 +43,62 @@
 	function createMap () {
 		wax.tilejson(url,
 		    function(tilejson) {
-		        var map = new L.Map('mb-map', {minZoom: 4, maxZoom: 10,})
+		    	// -88.8794,-9.7740,-56.3159,17.6650
+		    	var NE = new L.LatLng(17.6650,-88.8794),
+				SW = new L.LatLng(-9.7740,-56.3159),
+				bounds = new L.LatLngBounds(SW, NE);
+		        map = new L.Map('mb-map', {minZoom: 5, maxZoom: 9, maxBounds:bounds})
 		          .addLayer(new wax.leaf.connector(tilejson))
 		          .setView(new L.LatLng(tilejson.center[1], tilejson.center[0]), tilejson.center[2]);
-				//var geojsonLayer = new L.GeoJSON();
-				//map.addLayer(geojsonLayer);
-				//geojsonLayer.addGeoJSON(jsonData);
-				var cb = {
-					over: function() {
-						
-					},
-					out: function() {
-						
-					},
-					click: function() {
-						
-					}
-				};
-				var ch = function (url) {
-					console.log('click');
-				};
 				wax.leaf.interaction(map, tilejson);
 		});
 		//var layer = new wax.leaf.connector(tilejson); // Returns a new L.TileLayer object.
 	}
-	$.getJSON(dataurl, function(data) {
-		jsonData = data;
+	function plotYear(year) {
+		if (dataLayer!=undefined) {
+			map.removeLayer(dataLayer);
+		}
+		console.log("plot: " + year);
+		var dataurl = '/api.json?y=' + year;
+		var jsonData = {};
+		$.getJSON(dataurl, function(data) {
+			console.log(data);
+			// create the dot group layer
+			dataLayer = new L.LayerGroup();
+			// process each dot
+			var i,l=data.features.length;
+			for (i=0;i<l;++i) {
+				var info = data.features[i].properties;
+				var coords = data.features[i].geometry.coordinates;
+				// area represents deaths
+				// area = pi * (radius^2)
+				var r = Math.round(Math.sqrt(info.total/Math.PI));
+				var dot = new L.CircleMarker( new L.LatLng(coords[1],coords[0]), 
+					{radius:r, color:'#813',fillColor:'#d60000',fillOpacity: 0.5} 
+				);
+				var popString = "<strong>" + info.city + ", " + info.department + "</strong><br />";
+				popString += actors[1] + ": " + info.total_1 + "<br />";
+				popString += actors[2] + ": " + info.total_2 + "<br />";
+				popString += actors[3] + ": " + info.total_3 + "<br />";
+				popString += actors[4] + ": " + info.total_4 + "<br />";
+				popString += "TOTAL: " + info.total + "<br />";
+				dot.bindPopup(popString);
+				dataLayer.addLayer(dot);
+			}
+			map.addLayer(dataLayer);
+				//var geojsonLayer = new L.GeoJSON();
+				//map.addLayer(geojsonLayer);
+				//geojsonLayer.addGeoJSON(data);
+		});
+	}
+	function init() {
 		createMap();
-	});
+		plotYear(1988);
+		$("#year-select").change(
+			function () {
+				plotYear($(this).val());
+			}
+		);
+	}
+	init();
 </script>

@@ -1,6 +1,7 @@
 class LocationsController < ApplicationController
   
   def api
+    year = params[:y] == nil ? 1989 : params[:y]
     sql = "SELECT
             l.lat, l.lon, l.city, l.department, v.location_id, v.year_of, 
             SUM(CASE actor_id WHEN 1 THEN death_count END) AS total_1,
@@ -11,6 +12,7 @@ class LocationsController < ApplicationController
             FROM
             violences v, locations l
             WHERE v.location_id = l.id
+            AND v.year_of = #{year}
             GROUP BY
             v.location_id, v.year_of, l.city, l.department, l.lat, l.lon
             ORDER BY
