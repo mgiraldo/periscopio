@@ -2,9 +2,9 @@ class LocationsController < ApplicationController
   
   def api
     sqland = ""
-    if (params[:y]!=nil) {
-      sqland = "AND v.year_of = #{year}"
-    }
+    if (params[:y]!=nil)
+      sqland = "AND v.year_of = #{params[:y]}"
+    end
     sql = "SELECT
             l.lat, l.lon, l.city, l.department, v.location_id, v.year_of, 
             SUM(CASE actor_id WHEN 1 THEN death_count END) AS total_1,
