@@ -6,11 +6,8 @@
 <% end %>
 
 <h1>Visualizer</h1>
-Año: <select id="year-select">
-<% (1988..2005).each do |y| %>
-	<option value="<%= y %>"><%= y %></option>
-<% end %>
-</select>
+<div id="year">1988</div>
+<div id="year-slider"></div>
 <div id="mb-map"></div>
 <script type="text/javascript">
 	var actors = ["","DEL","ELN","FARC","AUC"];
@@ -58,6 +55,7 @@ Año: <select id="year-select">
 		if (dataLayer!=undefined) {
 			map.removeLayer(dataLayer);
 		}
+		$("#year").html("Año: " + year);
 		console.log("plot: " + year);
 		var dataurl = '/api.json?y=' + year;
 		var jsonData = {};
@@ -99,6 +97,12 @@ Año: <select id="year-select">
 				plotYear($(this).val());
 			}
 		);
+		$("#year-slider").slider({ min: 1988, max: 2005 });
+		$( "#year-slider" ).slider({
+			change: function(event, ui) {
+				plotYear($(this).slider("value"));
+			}
+		});
 	}
 	init();
 </script>
