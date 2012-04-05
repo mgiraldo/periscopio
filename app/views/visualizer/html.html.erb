@@ -6,7 +6,8 @@
 <% end %>
 
 <h1>Visualizer</h1>
-<div id="year">1988</div>
+<input type="button" id="play-btn" value="loading..." />
+<div id="year"></div>
 <div id="year-slider"></div>
 <div id="mb-map"></div>
 <script type="text/javascript">
@@ -17,26 +18,13 @@
 		tiles : ['http://a.tiles.mapbox.com/v3/mga.periscopio-base/{z}/{x}/{y}.png']
 	};
 	var map;
+	var violenceData = {};
 	var dataLayer;
 	var url = 'http://a.tiles.mapbox.com/v3/mga.periscopio-base.jsonp';
-	// Alias com.modestmaps to mm. This isn't necessary -
-	// just nice for shorter code.
-	var mm = com.modestmaps;
-	/*
-	wax.tilejson(url, function(tilejson) {
-		// Set up a map in a div with the id 'mb-map'
-		var m = new mm.Map('mb-map',
-		// Use Wax's connector to add a new custom layer
-		new wax.mm.connector(tilejson),
-		// And it'll be 240px by 120px
-		new mm.Point(600, 300));
-
-		// Center it on the default map center.
-		m.setCenterZoom(new mm.Location(tilejson.center[1], tilejson.center[0]), tilejson.center[2]);
-		wax.mm.zoomer(m).appendTo(m.parent);
-		wax.mm.interaction(m,tilejson);
-	});
-	*/
+	var playing = false;
+	var intervalId;
+	var years = [];
+	var step = 0;
 	function createMap () {
 		wax.tilejson(url,
 		    function(tilejson) {
@@ -57,41 +45,33 @@
 		}
 		$("#year").html("Año: " + year);
 		console.log("plot: " + year);
-		var dataurl = '/api.json?y=' + year;
-		var jsonData = {};
-		$.getJSON(dataurl, function(data) {
-			console.log(data);
-			// create the dot group layer
-			dataLayer = new L.LayerGroup();
-			// process each dot
-			var i,l=data.features.length;
-			for (i=0;i<l;++i) {
-				var info = data.features[i].properties;
-				var coords = data.features[i].geometry.coordinates;
-				// area represents deaths
-				// area = pi * (radius^2)
-				var r = Math.round(Math.sqrt(info.total/Math.PI));
-				var dot = new L.CircleMarker( new L.LatLng(coords[1],coords[0]), 
-					{radius:r, color:'#813',fillColor:'#d60000',fillOpacity: 0.5} 
-				);
-				var popString = "<strong>" + info.city + ", " + info.department + "</strong><br />";
-				popString += actors[1] + ": " + info.total_1 + "<br />";
-				popString += actors[2] + ": " + info.total_2 + "<br />";
-				popString += actors[3] + ": " + info.total_3 + "<br />";
-				popString += actors[4] + ": " + info.total_4 + "<br />";
-				popString += "TOTAL: " + info.total + "<br />";
-				dot.bindPopup(popString);
-				dataLayer.addLayer(dot);
-			}
-			map.addLayer(dataLayer);
-				//var geojsonLayer = new L.GeoJSON();
-				//map.addLayer(geojsonLayer);
-				//geojsonLayer.addGeoJSON(data);
-		});
+		var yearData = violenceData[year];
+		// create the dot group layer
+		dataLayer = new L.LayerGroup();
+		// process each dot
+		var i,l=yearData.length;
+		for (i=0;i<l;++i) {
+			var info = yearData[i].properties;
+			var coords = yearData[i].geometry.coordinates;
+			// area represents deaths
+			// area = pi * (radius^2)
+			var r = Math.round(Math.sqrt(info.total/Math.PI));
+			var dot = new L.CircleMarker( new L.LatLng(coords[1],coords[0]), 
+				{radius:r, color:'#813',fillColor:'#d60000',fillOpacity: 0.5} 
+			);
+			var popString = "<strong>" + info.city + ", " + info.department + "</strong><br />";
+			popString += actors[1] + ": " + info.total_1 + "<br />";
+			popString += actors[2] + ": " + info.total_2 + "<br />";
+			popString += actors[3] + ": " + info.total_3 + "<br />";
+			popString += actors[4] + ": " + info.total_4 + "<br />";
+			popString += "TOTAL: " + info.total + "<br />";
+			dot.bindPopup(popString);
+			dataLayer.addLayer(dot);
+		}
+		map.addLayer(dataLayer);
 	}
 	function init() {
 		createMap();
-		plotYear(1988);
 		$("#year-select").change(
 			function () {
 				plotYear($(this).val());
@@ -100,8 +80,66 @@
 		$("#year-slider").slider({ min: 1988, max: 2005 });
 		$( "#year-slider" ).slider({
 			change: function(event, ui) {
-				plotYear($(this).slider("value"));
+				if (!playing) {
+					plotYear($(this).slider("value"));
+				}
+			},
+			click: function(event, ui) {
+				if(playing) {
+					stopAnimation();
+				}
 			}
+		});
+		loadData();
+	}
+	function loadData() {
+		var dataurl = '/api.json';
+		$.getJSON(dataurl, function(data) {
+			console.log(data);
+			// process each dot
+			var i,l=data.features.length;
+			var lastYear = 0;
+			for (i=0;i<l;++i) {
+				if (data.features[i].properties.year_of!=lastYear) {
+					// new year... create array
+					lastYear = data.features[i].properties.year_of;
+					violenceData[lastYear] = [];
+					years.push(lastYear);
+				}
+				violenceData[lastYear].push(data.features[i]);
+			}
+			// console.log(violenceData);
+			plotYear(1988);
+			enablePlay();
+		});
+	}
+	function playAnimation() {
+		playing = true;
+		intervalId = setInterval(nextStep,300);
+		$("#year-slider").slider("disable");
+	}
+	function stopAnimation() {
+		playing = false;
+		clearInterval(intervalId);
+		$("#year-slider").slider("enable");
+	}
+	function nextStep() {
+		step++;
+		console.log("step:" + step);
+		if (step>=years.length) {
+			step=0;
+		}
+		$("#year-slider").slider("value",years[step]);
+		plotYear(years[step]);
+	}
+	function enablePlay() {
+		$("#play-btn").val("Play");
+		$("#play-btn").toggle(function (){
+			$(this).val("Pause");
+			playAnimation();
+		}, function(){
+			$(this).val("Play");
+			stopAnimation();
 		});
 	}
 	init();
