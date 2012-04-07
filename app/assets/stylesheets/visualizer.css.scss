@@ -1,12 +1,19 @@
 // Place all the styles related to the visualizer controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+$background : #001420;
 #mb-map {
-  background: #001420;
+  background: $background;
   width: 600px;
   height: 400px;
 }
 #year-slider {
   width: 580px;
   margin: 10px;
+}
+#chart {
+  background: $background;
+  width: 600px;
+  height: 150px;
+  margin-top: 2px;
 }

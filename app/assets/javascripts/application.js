@@ -11,3 +11,4 @@
 //= require leaflet.0.3
 //= require wax.leaf.min
 //= require jquery-ui-1.8.18.custom.min
+//= require highcharts

@@ -10,6 +10,7 @@
 <div id="year"></div>
 <div id="year-slider"></div>
 <div id="mb-map"></div>
+<div id="chart"></div>
 <script type="text/javascript">
 	var actors = ["","DEL","ELN","FARC","AUC"];
 	var tilejson = {
@@ -18,8 +19,11 @@
 		tiles : ['http://a.tiles.mapbox.com/v3/mga.periscopio-base/{z}/{x}/{y}.png']
 	};
 	var map;
+	var chart;
+	var hasPlotLine = false;
 	var violenceData = {};
-	var dataLayer;
+	var dataLayers = {};
+	var currentLayer;
 	var url = 'http://a.tiles.mapbox.com/v3/mga.periscopio-base.jsonp';
 	var playing = false;
 	var intervalId;
@@ -40,35 +44,48 @@
 		//var layer = new wax.leaf.connector(tilejson); // Returns a new L.TileLayer object.
 	}
 	function plotYear(year) {
-		if (dataLayer!=undefined) {
-			map.removeLayer(dataLayer);
-		}
 		$("#year").html("Año: " + year);
-		console.log("plot: " + year);
-		var yearData = violenceData[year];
-		// create the dot group layer
-		dataLayer = new L.LayerGroup();
-		// process each dot
-		var i,l=yearData.length;
-		for (i=0;i<l;++i) {
-			var info = yearData[i].properties;
-			var coords = yearData[i].geometry.coordinates;
-			// area represents deaths
-			// area = pi * (radius^2)
-			var r = Math.round(Math.sqrt(info.total/Math.PI));
-			var dot = new L.CircleMarker( new L.LatLng(coords[1],coords[0]), 
-				{radius:r, color:'#813',fillColor:'#d60000',fillOpacity: 0.5} 
-			);
-			var popString = "<strong>" + info.city + ", " + info.department + "</strong><br />";
-			popString += actors[1] + ": " + info.total_1 + "<br />";
-			popString += actors[2] + ": " + info.total_2 + "<br />";
-			popString += actors[3] + ": " + info.total_3 + "<br />";
-			popString += actors[4] + ": " + info.total_4 + "<br />";
-			popString += "TOTAL: " + info.total + "<br />";
-			dot.bindPopup(popString);
-			dataLayer.addLayer(dot);
+		if (currentLayer!=undefined) {
+			map.removeLayer(currentLayer);
 		}
-		map.addLayer(dataLayer);
+		if (dataLayers[year]==undefined) {
+			console.log("no layer");
+			// create the dot group layer
+			dataLayers[year] = new L.LayerGroup();
+			var yearData = violenceData[year];
+			// process each dot
+			var i,l=yearData.length;
+			for (i=0;i<l;++i) {
+				var info = yearData[i].properties;
+				var coords = yearData[i].geometry.coordinates;
+				// area represents deaths
+				// area = pi * (radius^2)
+				var r = Math.round(Math.sqrt(info.total/Math.PI));
+				var dot = new L.CircleMarker( new L.LatLng(coords[1],coords[0]), 
+					{radius:r, color:'#813', fillColor:'#d60000', stroke:false, fillOpacity: 1} 
+				);
+				var popString = "<strong>" + info.city + ", " + info.department + "</strong><br />";
+				popString += actors[1] + ": " + info.total_1 + "<br />";
+				popString += actors[2] + ": " + info.total_2 + "<br />";
+				popString += actors[3] + ": " + info.total_3 + "<br />";
+				popString += actors[4] + ": " + info.total_4 + "<br />";
+				popString += "TOTAL: " + info.total + "<br />";
+				dot.bindPopup(popString);
+				dataLayers[year].addLayer(dot);
+			}
+		}
+		currentLayer = dataLayers[year];
+		map.addLayer(currentLayer);
+		if (hasPlotLine) {
+			chart.xAxis[0].removePlotLine('year-line');
+		}
+		chart.xAxis[0].addPlotLine({
+			color: '#ff0000',
+			width: 1,
+			value: years.indexOf(year),
+			id: 'year-line'
+		});
+		hasPlotLine = true;
 	}
 	function init() {
 		createMap();
@@ -95,23 +112,88 @@
 	function loadData() {
 		var dataurl = '/api.json';
 		$.getJSON(dataurl, function(data) {
-			console.log(data);
+			//console.log(data);
 			// process each dot
 			var i,l=data.features.length;
 			var lastYear = 0;
+			var k = -1;
+			violenceData = {
+				xAxis: {categories: [], labels: {style:{fontSize: '9px'}}},
+				yAxis: {min: 0, max: 0, endOnTick: false, gridLineWidth: 0},
+				series: []
+			};
+			violenceData.series.push({});
+			violenceData.series.push({name:actors[1],data:[]});
+			violenceData.series.push({name:actors[2],data:[]});
+			violenceData.series.push({name:actors[3],data:[]});
+			violenceData.series.push({name:actors[4],data:[]});
 			for (i=0;i<l;++i) {
 				if (data.features[i].properties.year_of!=lastYear) {
+					k++;
 					// new year... create array
 					lastYear = data.features[i].properties.year_of;
 					violenceData[lastYear] = [];
+					violenceData.xAxis.categories.push(lastYear);
+					violenceData.series[1].data[k] = 0;
+					violenceData.series[2].data[k] = 0;
+					violenceData.series[3].data[k] = 0;
+					violenceData.series[4].data[k] = 0;
 					years.push(lastYear);
+				}
+				violenceData.series[1].data[k] += data.features[i].properties.total_1;
+				violenceData.series[2].data[k] += data.features[i].properties.total_2;
+				violenceData.series[3].data[k] += data.features[i].properties.total_3;
+				violenceData.series[4].data[k] += data.features[i].properties.total_4;
+				if (violenceData.yAxis.max < Math.max(violenceData.series[1].data[k],violenceData.series[2].data[k],violenceData.series[3].data[k],violenceData.series[4].data[k])) {
+					violenceData.yAxis.max = 1000 + Math.max(violenceData.series[1].data[k],violenceData.series[2].data[k],violenceData.series[3].data[k],violenceData.series[4].data[k])
 				}
 				violenceData[lastYear].push(data.features[i]);
 			}
-			// console.log(violenceData);
+			violenceData.series.shift();
+			//console.log(violenceData);
+			plotChart();
 			plotYear(1988);
 			enablePlay();
 		});
+	}
+	function plotChart() {
+		chart = new Highcharts.Chart(
+			{
+				chart: {
+					renderTo: 'chart',
+					type: 'line',
+					backgroundColor: "#001420",
+					borderColor: "#001420",
+					borderRadius: 0,
+					animation: false,
+					marginRight: 0,
+					marginBottom: 20,
+					marginLeft: 0
+				},
+				plotOptions: {
+					line : {
+						lineWidth: 1,
+						marker: {
+							enabled: false,
+							states: {
+								hover: {
+									enabled: true,
+									symbol: 'circle',
+									radius: 0.5,
+									lineWidth: 1
+								}
+							}
+						}
+					}
+				},
+				credits: {enabled:false},
+				legend: {enabled:false},
+				title: {text:null},
+				xAxis: violenceData.xAxis,
+				yAxis: violenceData.yAxis,
+				series: violenceData.series
+			}
+		);
 	}
 	function playAnimation() {
 		playing = true;
@@ -125,7 +207,6 @@
 	}
 	function nextStep() {
 		step++;
-		console.log("step:" + step);
 		if (step>=years.length) {
 			step=0;
 		}
