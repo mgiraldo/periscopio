@@ -5,7 +5,6 @@
 <![endif]-->
 <% end %>
 
-<h1>Visualizer</h1>
 <input type="button" id="play-btn" value="loading..." />
 <div id="year"></div>
 <div id="year-slider"></div>
@@ -98,6 +97,7 @@
 		$( "#year-slider" ).slider({
 			change: function(event, ui) {
 				if (!playing) {
+					step = years.indexOf($(this).slider("value"));
 					plotYear($(this).slider("value"));
 				}
 			},
