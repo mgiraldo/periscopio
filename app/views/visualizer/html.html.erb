@@ -5,12 +5,19 @@
 <![endif]-->
 <% end %>
 
-<input type="button" id="play-btn" value="loading..." />
-<div id="year"></div>
-<div id="year-slider"></div>
-<div id="mb-map"></div>
-<div id="chart"></div>
+<div id="wrapper">
+	<div id="mb-map"></div>
+	<div id="year"></div>
+	<div id="controls">
+		<a id="play-btn" href="#" class="button">LOADING...</a>
+		<div id="year-slider"></div>
+		<div id="chart-wrapper">
+			<div id="chart"></div>
+		</div>
+	</div>
+</div>
 <script type="text/javascript">
+{
 	var actors = ["","DEL","ELN","FARC","AUC"];
 	var tilejson = {
 		tilejson : '1.0.0',
@@ -28,6 +35,7 @@
 	var intervalId;
 	var years = [];
 	var step = 0;
+	var popup;
 	function createMap () {
 		wax.tilejson(url,
 		    function(tilejson) {
@@ -38,17 +46,32 @@
 		        map = new L.Map('mb-map', {minZoom: 5, maxZoom: 9, maxBounds:bounds})
 		          .addLayer(new wax.leaf.connector(tilejson))
 		          .setView(new L.LatLng(tilejson.center[1], tilejson.center[0]), tilejson.center[2]);
-				wax.leaf.interaction(map, tilejson);
+				//wax.leaf.interaction(map, tilejson); // old way
+				wax.leaf.interaction()
+					.map(map)
+					.tilejson(tilejson)
+					.on(wax.tooltip().parent(map._container).events());
+				map.on('popupopen',
+					function (e) {
+						console.log(e.popup);
+						popup = e.popup;
+					}
+				);
+				map.on('popupclose',
+					function (e) {
+						popup = undefined;
+					}
+				);
 		});
 		//var layer = new wax.leaf.connector(tilejson); // Returns a new L.TileLayer object.
 	}
 	function plotYear(year) {
-		$("#year").html("Año: " + year);
+		step = years.indexOf(year);
+		$("#year").html("" + year);
 		if (currentLayer!=undefined) {
 			map.removeLayer(currentLayer);
 		}
 		if (dataLayers[year]==undefined) {
-			console.log("no layer");
 			// create the dot group layer
 			dataLayers[year] = new L.LayerGroup();
 			var yearData = violenceData[year];
@@ -63,18 +86,29 @@
 				var dot = new L.CircleMarker( new L.LatLng(coords[1],coords[0]), 
 					{radius:r, color:'#813', fillColor:'#d60000', stroke:false, fillOpacity: 1} 
 				);
-				var popString = "<strong>" + info.city + ", " + info.department + "</strong><br />";
-				popString += actors[1] + ": " + info.total_1 + "<br />";
-				popString += actors[2] + ": " + info.total_2 + "<br />";
-				popString += actors[3] + ": " + info.total_3 + "<br />";
-				popString += actors[4] + ": " + info.total_4 + "<br />";
-				popString += "TOTAL: " + info.total + "<br />";
+				var pct1=0, pct2=0, pct3=0, pct4=0;
+				pct1 = Math.round(info.total_1/info.total*1000)/10;
+				pct2 = Math.round(info.total_2/info.total*1000)/10;
+				pct3 = Math.round(info.total_3/info.total*1000)/10;
+				pct4 = Math.round(info.total_4/info.total*1000)/10;
+				var popString = "<div class=\"stats-popup\">";
+				popString += "<strong>" + info.city + ", " + info.department + "</strong><br />";
+				popString += "<div class=\"stats-row\"><span>" + actors[1] + "</span><p style=\"width:"+(pct1/2+1)+"%\"><span class=\"stat\">" + info.total_1 + "</span></p></div>";
+				popString += "<div class=\"stats-row\"><span>" + actors[2] + "</span><p style=\"width:"+(pct2/2+1)+"%\"><span class=\"stat\">" + info.total_2 + "</span></p></div>";
+				popString += "<div class=\"stats-row\"><span>" + actors[3] + "</span><p style=\"width:"+(pct3/2+1)+"%\"><span class=\"stat\">" + info.total_3 + "</span></p></div>";
+				popString += "<div class=\"stats-row\"><span>" + actors[4] + "</span><p style=\"width:"+(pct4/2+1)+"%\"><span class=\"stat\">" + info.total_4 + "</span></p></div>";
+				popString += "<p>TOTAL: " + info.total + "</p>";
+				popString += "</div>";
 				dot.bindPopup(popString);
 				dataLayers[year].addLayer(dot);
 			}
 		}
 		currentLayer = dataLayers[year];
 		map.addLayer(currentLayer);
+		if (popup!=undefined) {
+			console.log("theres a popup");
+			map.closePopup();
+		}
 		if (hasPlotLine) {
 			chart.xAxis[0].removePlotLine('year-line');
 		}
@@ -94,7 +128,7 @@
 			}
 		);
 		$("#year-slider").slider({ min: 1988, max: 2005 });
-		$( "#year-slider" ).slider({
+		$("#year-slider").slider({
 			change: function(event, ui) {
 				if (!playing) {
 					step = years.indexOf($(this).slider("value"));
@@ -168,7 +202,12 @@
 					animation: false,
 					marginRight: 0,
 					marginBottom: 20,
-					marginLeft: 0
+					marginLeft: 0,
+					events: {
+						click:	function(e) {
+							plotYear(1988+(Math.floor(e.xAxis[0].value)));
+						}
+					}
 				},
 				plotOptions: {
 					line : {
@@ -182,6 +221,11 @@
 									radius: 0.5,
 									lineWidth: 1
 								}
+							}
+						},
+						events: {
+							click:	function(e) {
+								plotYear(1988+e.point.x);
 							}
 						}
 					}
@@ -214,14 +258,15 @@
 		plotYear(years[step]);
 	}
 	function enablePlay() {
-		$("#play-btn").val("Play");
+		$("#play-btn").html("PLAY");
 		$("#play-btn").toggle(function (){
-			$(this).val("Pause");
+			$(this).html("PAUSE");
 			playAnimation();
 		}, function(){
-			$(this).val("Play");
+			$(this).html("PLAY");
 			stopAnimation();
 		});
 	}
 	init();
+}
 </script>
