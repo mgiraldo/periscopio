@@ -1,7 +1,7 @@
 <% content_for :dynamic_headers do %>
-<link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.css" />
+<%= stylesheet_link_tag "leaflet" %>
 <!--[if lte IE 8]>
-    <link rel="stylesheet" href="http://code.leafletjs.com/leaflet-0.3.1/leaflet.ie.css" />
+<%= stylesheet_link_tag "leaflet.ie" %>
 <![endif]-->
 <% end %>
 
