@@ -13,8 +13,8 @@ namespace :periscopio do
 			else
 				place.department = row[1]
 				place.city = row[2]
-				place.lon = row[3]
-				place.lat = row[4]
+				place.lon = row[3].to_f
+				place.lat = row[4].to_f
 				if place.save
 					n=n+1
 					puts "Saved #{place.city} #{place.department} with #{row[1]}, #{row[2]} #{place.lat},#{place.lon}"
