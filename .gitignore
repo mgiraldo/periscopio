@@ -8,7 +8,6 @@
 /vendor
 /doc
 /test
-/lib
 .project
 
 # Ignore bundler config
