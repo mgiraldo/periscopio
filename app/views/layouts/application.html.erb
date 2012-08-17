@@ -10,10 +10,25 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
+<% if user_signed_in? %>
+<div id="header">
 <%= link_to "Violences", :violences %>
 <%= link_to "Locations", :locations %>
 <%= link_to "Types", :violence_types %>
 <%= link_to "Actors", :actors %>
+
+<%= current_user.email %> •
+<%= link_to "Sign Out", destroy_user_session_path, :method => :delete %>
+</div>
+<% end %>
+
+<% if notice %>
+	<p class="notice"><%= notice %></p>
+<% end %>
+<% if alert %>
+	<p class="alert"><%= alert %></p>
+<% end %>
+
 <%= yield %>
 
 </body>

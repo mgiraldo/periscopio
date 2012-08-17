@@ -1,4 +1,5 @@
 class LocationsController < ApplicationController
+  before_filter :authenticate_user!, :except => [:api]
   
   def api
     sqland = ""

@@ -6,7 +6,6 @@
 	<div id="year"></div>
 	<div id="controls">
 		<a id="play-btn" href="#" class="button">LOADING...</a>
-		<div id="year-slider"></div>
 		<div id="chart-wrapper">
 			<div id="chart"></div>
 		</div>
@@ -123,20 +122,6 @@
 				plotYear($(this).val());
 			}
 		);
-		$("#year-slider").slider({ min: 1988, max: 2005 });
-		$("#year-slider").slider({
-			change: function(event, ui) {
-				if (!playing) {
-					step = years.indexOf($(this).slider("value"));
-					plotYear($(this).slider("value"));
-				}
-			},
-			click: function(event, ui) {
-				if(playing) {
-					stopAnimation();
-				}
-			}
-		});
 		loadData();
 	}
 	function loadData() {
@@ -238,19 +223,16 @@
 	function playAnimation() {
 		playing = true;
 		intervalId = setInterval(nextStep,300);
-		$("#year-slider").slider("disable");
 	}
 	function stopAnimation() {
 		playing = false;
 		clearInterval(intervalId);
-		$("#year-slider").slider("enable");
 	}
 	function nextStep() {
 		step++;
 		if (step>=years.length) {
 			step=0;
 		}
-		$("#year-slider").slider("value",years[step]);
 		plotYear(years[step]);
 	}
 	function enablePlay() {

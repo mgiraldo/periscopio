@@ -1,4 +1,5 @@
 class ViolencesController < ApplicationController
+  before_filter :authenticate_user!
   # GET /violences
   # GET /violences.json
   def index

@@ -1,4 +1,6 @@
 Periscopio::Application.routes.draw do
+  devise_for :users
+
   get "visualizer/html"
 
   get "visualizer/p5"
@@ -66,7 +68,7 @@ Periscopio::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # just remember to delete public/index.html.
-  root :to => 'violences#index'
+  root :to => 'visualizer#html'
 
   # See how all your routes lay out with "rake routes"
 

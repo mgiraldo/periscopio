@@ -1,4 +1,5 @@
 class ActorsController < ApplicationController
+  before_filter :authenticate_user!
   # GET /actors
   # GET /actors.json
   def index
