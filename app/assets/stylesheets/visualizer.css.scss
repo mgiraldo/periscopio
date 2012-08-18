@@ -2,6 +2,8 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 $background : #fff;
+$textcolor : #000;
+$barcolor : #f00;
 $font : "Helvetica Neue", Helvetica, Arial, sans-serif;
 html, body, p {
   font-family: $font;
@@ -72,10 +74,10 @@ a.button:hover {
   z-index: 5;
 }
 #chart-wrapper {
-  border: 1px solid #fff;
+  // border: 1px solid $background;
 }
 #chart {
-  background: $background;
+  // background: $background;
   width: 600px;
   height: 150px;
 }
@@ -84,9 +86,10 @@ a.button:hover {
   width: 70px;
   display: block;
   text-align: center;
+  margin-bottom: 5px;
 }
 #year {
-  color: #fff;
+  color: $textcolor;
   font: 50px $font;
   left: 50px;
   position: absolute;
@@ -109,7 +112,7 @@ a.button:hover {
   margin: 0;
   padding: 0;
   position: relative;
-  background-color: #f00;
+  background-color: $barcolor;
   height: 1em;
   font: 12px $font;
   display: inline-block;

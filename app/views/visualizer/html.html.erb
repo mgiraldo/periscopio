@@ -3,7 +3,7 @@
 
 <div id="wrapper">
 	<div id="mb-map"></div>
-	<div id="year"></div>
+	<div id="year">LOADING...</div>
 	<div id="controls">
 		<a id="play-btn" href="#" class="button">LOADING...</a>
 		<div id="chart-wrapper">
@@ -116,6 +116,7 @@
 		hasPlotLine = true;
 	}
 	function init() {
+		$("#play-btn").hide();
 		createMap();
 		$("#year-select").change(
 			function () {
@@ -237,6 +238,7 @@
 		plotYear(years[step]);
 	}
 	function enablePlay() {
+		$("#play-btn").show();
 		$("#play-btn").html("PLAY");
 		$("#play-btn").toggle(function (){
 			$(this).html("PAUSE");
