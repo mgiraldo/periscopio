@@ -38,7 +38,7 @@
 		    	var NE = new L.LatLng(17.6650,-88.8794),
 				SW = new L.LatLng(-9.7740,-56.3159),
 				bounds = new L.LatLngBounds(SW, NE);
-		        map = new L.Map('mb-map', {minZoom: 5, maxZoom: 9, maxBounds:bounds})
+		        map = new L.Map('mb-map', {minZoom: 6, maxZoom: 9, maxBounds:bounds})
 		          .addLayer(new wax.leaf.connector(tilejson))
 		          .setView(new L.LatLng(tilejson.center[1], tilejson.center[0]), tilejson.center[2]);
 				//wax.leaf.interaction(map, tilejson); // old way
@@ -79,7 +79,7 @@
 				// area = pi * (radius^2)
 				var r = Math.round(Math.sqrt(info.total/Math.PI));
 				var dot = new L.CircleMarker( new L.LatLng(coords[1],coords[0]), 
-					{radius:r, color:'#813', fillColor:'#d60000', stroke:false, fillOpacity: 1} 
+					{radius:r, color:'#813', fillColor:'#d60000', stroke:false, fillOpacity: 0.65} 
 				);
 				var pct1=0, pct2=0, pct3=0, pct4=0;
 				pct1 = Math.round(info.total_1/info.total*1000)/10;
@@ -177,9 +177,10 @@
 				chart: {
 					renderTo: 'chart',
 					type: 'line',
-					backgroundColor: "#001420",
-					borderColor: "#001420",
+					backgroundColor: "#fff",
+					borderColor: "#999",
 					borderRadius: 0,
+					borderWidth: 1,
 					animation: false,
 					marginRight: 0,
 					marginBottom: 20,
