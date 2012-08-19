@@ -57,7 +57,7 @@ class LocationsController < ApplicationController
   def index
     per = 100
     page = params[:page] == nil ? 1 : params[:page]
-    @locations = Location.page(page).per(per)
+    @locations = Location.order('department ASC, city ASC').page(page).per(per)
 
     respond_to do |format|
       format.html # index.html.erb
