@@ -19,7 +19,7 @@ gem 'fastercsv'
 
 gem 'kaminari'
 
-gem 'json'
+gem 'json', '1.7.7'
 
 gem 'thin'
 
