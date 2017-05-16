@@ -15,15 +15,16 @@ ActiveRecord::Schema.define(:version => 20120817214711) do
 
   create_table "actors", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "locations", :force => true do |t|
     t.string   "department"
     t.string   "city"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string   "latlon"
+    t.datetime "created_at",                                 :null => false
+    t.datetime "updated_at",                                 :null => false
     t.decimal  "lat",        :precision => 15, :scale => 10
     t.decimal  "lon",        :precision => 15, :scale => 10
   end
@@ -39,8 +40,8 @@ ActiveRecord::Schema.define(:version => 20120817214711) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
@@ -48,8 +49,8 @@ ActiveRecord::Schema.define(:version => 20120817214711) do
 
   create_table "violence_types", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "violences", :force => true do |t|
@@ -58,12 +59,8 @@ ActiveRecord::Schema.define(:version => 20120817214711) do
     t.integer  "violence_type_id"
     t.integer  "year_of"
     t.integer  "death_count"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
   end
-
-  add_index "violences", ["actor_id"], :name => "fk_violences_actors"
-  add_index "violences", ["location_id"], :name => "fk_violences_locations"
-  add_index "violences", ["violence_type_id"], :name => "fk_violences_types"
 
 end

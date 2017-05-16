@@ -7,7 +7,7 @@ namespace :periscopio do
 		n=0
 		CSV.foreach(file, :headers => true, :encoding => 'utf-8') do |row|
 			puts "row #{n}"
-			place = Location.find(row[0])
+			place = Location.find_or_create_by_id(row[0])
 			if (!place)
 				puts "could not find place #{row[0]}"
 			else

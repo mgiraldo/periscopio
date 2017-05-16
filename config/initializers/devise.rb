@@ -5,6 +5,7 @@ Devise.setup do |config|
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class with default "from" parameter.
   config.mailer_sender = "no-reply@periscopio.org"
+  config.secret_key = '38f37bfcfa30660710b97d8c28d4417b044c5cedfbf23caee5959355636ab4ea275a785deb23ce567d07c3d664fe4f1244210672da6a120c699a24ab674543fc'
 
   # Configure the class responsible to send e-mails.
   # config.mailer = "Devise::Mailer"

@@ -4,13 +4,9 @@
 #   Ensure the SQLite 3 gem is defined in your Gemfile
 #   gem 'sqlite3'
 development:
-  adapter: mysql2
-  encoding: utf8
+  adapter: postgresql
   database: periscopio
-  username: root
-  password: mampmix
-  host: 127.0.0.1
-  port: 8889
+  host: localhost
   
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
