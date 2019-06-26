@@ -12,6 +12,7 @@
 	</div>
 </div>
 <script type="text/javascript">
+	var map;
 $(function() {
 	var actors = ["","DEL","ELN","FARC","AUC"];
 	var tilejson = {
@@ -19,7 +20,6 @@ $(function() {
 		scheme : 'xyz',
 		tiles : ['https://a.tiles.mapbox.com/v3/mga.periscopio-base/{z}/{x}/{y}.png']
 	};
-	var map;
 	var chart;
 	var hasPlotLine = false;
 	var violenceData = {};
@@ -48,7 +48,7 @@ $(function() {
 					.on(wax.tooltip().parent(map._container).events());
 				map.on('popupopen',
 					function (e) {
-						console.log(e.popup);
+						// console.log(e.popup);
 						popup = e.popup;
 					}
 				);
@@ -101,7 +101,7 @@ $(function() {
 		currentLayer = dataLayers[year];
 		map.addLayer(currentLayer);
 		if (popup!=undefined) {
-			console.log("theres a popup");
+			// console.log("theres a popup");
 			map.closePopup();
 		}
 		if (hasPlotLine) {

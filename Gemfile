@@ -1,19 +1,17 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
-ruby '2.3.3'
+ruby '2.6.0'
 
 gem 'rails', '3.2.22'
 
 # Bundle edge Rails instead:
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
-gem 'devise'
+# gem 'devise'
 
 # group :development, :test do
 #   gem 'mysql2'
 # end
-
-gem 'pg'
 
 gem 'fastercsv'
 
